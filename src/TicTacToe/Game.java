@@ -5,6 +5,8 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.util.Objects;
 
+import static TicTacToe.DatabaseConnection.*;
+
 public class Game {
     Board board = new Board();
     Player player1;
@@ -13,8 +15,6 @@ public class Game {
     JFrame frame;
     JButton[][] buttons;
     boolean isBot;
-    User [] Users = new User[2];
-    int user = 0;
     ImageIcon icon = new ImageIcon("E:\\Java\\Programs\\TicTacToe\\src\\logo.png");
     Image logo = icon.getImage();
 
@@ -38,17 +38,16 @@ public class Game {
         registerWindow.add(usernameField);
         registerWindow.add(passwordLabel);
         registerWindow.add(passwordField);
-        registerWindow.add(new JLabel()); // Empty cell to align the button
+        registerWindow.add(new JLabel());
         registerWindow.add(registerButton);
         registerButton.addActionListener(e -> {
             // Retrieve user input
             String username = usernameField.getText();
             char[] passwordChars = passwordField.getPassword();
-            String password = new String(passwordChars); // Convert char[] to String
+            String password = new String(passwordChars);
 
-            // Create a new User object with entered credentials
             User newUser = new User(username, password);
-            Users[user++] = newUser;
+            addUser(newUser);
             // Display success message
             JOptionPane.showMessageDialog(registerWindow, "User registration successful for the user " + newUser.getUsername());
             registerWindow.dispose();
@@ -84,25 +83,84 @@ public class Game {
             String username = usernameField.getText();
             char[] passwordChars = passwordField.getPassword();
             String password = new String(passwordChars); // Convert char[] to String
-            int i;
-            boolean found = false;
-            for(i = 0; i<user; i++) {
-                if(Objects.equals(Users[i].getUsername(), username)) {
-                    found = true;
-                    if(Objects.equals(Users[i].getPassword(), password)) {
-                        JOptionPane.showMessageDialog(loginWindow, "Log In successful for the user " + username);
-                        loginWindow.dispose();
-                        frame.dispose();
-                        modeSelect();
-                    } else {
-                        JOptionPane.showMessageDialog(loginWindow, "Log In Unsuccessful.");
-                        loginWindow.dispose();
-                    }
+            boolean userExists = usernameExists(username);
+            boolean correctPass = false;
+            if(userExists) {
+                correctPass = validPass(username, password);
+                if (correctPass) {
+                    player1 = new Player(username, 'X');
+                    currentPlayer = player1;
+
+                    loginWindow.dispose();
+                    frame.dispose();
+                    modeSelect();
+                } else {
+                    JOptionPane.showMessageDialog(loginWindow, "Log In Unsuccessful.");
+                    loginWindow.dispose();
                 }
             }
-            if(!found) {
+            else {
                 JOptionPane.showMessageDialog(loginWindow, "User not found");
 
+            }
+            loginWindow.dispose();
+        });
+
+        // Make the JFrame visible
+        loginWindow.setVisible(true);
+    }
+
+    private void p2login() {
+        JFrame loginWindow = new JFrame("LOG IN to TIC TAC TOE");
+        loginWindow.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        loginWindow.setSize(300, 200);
+        loginWindow.setLayout(new GridLayout(3, 2, 10, 10));
+        loginWindow.setIconImage(logo);
+
+        JLabel usernameLabel = new JLabel("Username:");
+        JTextField usernameField = new JTextField();
+
+        JLabel passwordLabel = new JLabel("Password:");
+        JPasswordField passwordField = new JPasswordField();
+
+        JButton loginButton = new JButton("LOG IN");
+
+        loginWindow.add(usernameLabel);
+        loginWindow.add(usernameField);
+        loginWindow.add(passwordLabel);
+        loginWindow.add(passwordField);
+        loginWindow.add(new JLabel()); // Empty cell to align the button
+        loginWindow.add(loginButton);
+        loginButton.addActionListener(e -> {
+            // Retrieve user input
+            String username = usernameField.getText();
+            char[] passwordChars = passwordField.getPassword();
+            String password = new String(passwordChars); // Convert char[] to String
+            boolean userExists = usernameExists(username);
+            boolean correctPass = false;
+            if(userExists) {
+                correctPass = validPass(username, password);
+                if (correctPass) {
+                    if(!Objects.equals(player1.getName(), username)) {
+                        player2 = new Player(username, 'O');
+                        loginWindow.dispose();
+                        tictactoe();
+                    }
+                    else {
+                        JOptionPane.showMessageDialog(loginWindow, "Same user cannot play both sides");
+                        loginWindow.dispose();
+                        modeSelect();
+                    }
+
+                } else {
+                    JOptionPane.showMessageDialog(loginWindow, "Log In Unsuccessful.");
+                    loginWindow.dispose();
+                    modeSelect();
+                }
+            }
+            else {
+                JOptionPane.showMessageDialog(loginWindow, "User not found");
+                modeSelect();
             }
             loginWindow.dispose();
         });
@@ -135,9 +193,8 @@ public class Game {
         });
         multiplayer.addActionListener((ActionEvent e) -> {
             modeSelect.dispose();
+            p2login();
             isBot = false;
-            this.player2 = new Player('O');
-            tictactoe();
         });
         online.addActionListener((ActionEvent e) -> {
             modeSelect.dispose();
@@ -192,9 +249,17 @@ public class Game {
 
         if (checkWin()) {
             JOptionPane.showMessageDialog(frame, "Player " + currentPlayer.getName() + " wins!");
+            incrementMatches(player1.getName());
+            incrementMatches(player2.getName());
+            incrementWin(currentPlayer.getName());
+            incrementLoss((currentPlayer == player2)? player1.getName():player2.getName());
             resetBoard();
         } else if (isBoardFull()) {
             JOptionPane.showMessageDialog(frame, "It's a draw!");
+            incrementMatches(player1.getName());
+            incrementMatches(player2.getName());
+            incrementDraws(currentPlayer.getName());
+            incrementDraws((currentPlayer == player2)? player1.getName():player2.getName());
             resetBoard();
         } else {
             if(currentPlayer == player1) {
@@ -266,9 +331,8 @@ public class Game {
 
     public Game() {
         User newUser = new User("Abrar", "1234");
-        Users[user++] = newUser;
-        player1 = new Player('X');
-        currentPlayer = player1;
+        addUser(newUser);
+        player1 = new Player("PLAYER", 'X');
 
         JFrame loginWindow = new JFrame("TicTacToe");
         loginWindow.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
