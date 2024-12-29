@@ -247,7 +247,7 @@ public class Game {
         buttons[row][col].setText(String.valueOf(currentPlayer.character));
         board.draw(currentPlayer, row+1, col+1);
 
-        if (checkWin()) {
+        if (board.checkWin(currentPlayer)) {
             JOptionPane.showMessageDialog(frame, "Player " + currentPlayer.getName() + " wins!");
             incrementMatches(player1.getName());
             incrementMatches(player2.getName());
@@ -278,35 +278,7 @@ public class Game {
         }
     }
 
-    private boolean checkWin() {
-        // Check rows and columns.
-        for (int i = 0; i < 3; i++) {
-            if (buttons[i][0].getText().equals(String.valueOf(currentPlayer.character)) &&
-                    buttons[i][1].getText().equals(String.valueOf(currentPlayer.character)) &&
-                    buttons[i][2].getText().equals(String.valueOf(currentPlayer.character))) {
-                return true;
-            }
-            if (buttons[0][i].getText().equals(String.valueOf(currentPlayer.character)) &&
-                    buttons[1][i].getText().equals(String.valueOf(currentPlayer.character)) &&
-                    buttons[2][i].getText().equals(String.valueOf(currentPlayer.character))) {
-                return true;
-            }
-        }
 
-        // Check diagonals.
-        if (buttons[0][0].getText().equals(String.valueOf(currentPlayer.character)) &&
-                buttons[1][1].getText().equals(String.valueOf(currentPlayer.character)) &&
-                buttons[2][2].getText().equals(String.valueOf(currentPlayer.character))) {
-            return true;
-        }
-        if (buttons[0][2].getText().equals(String.valueOf(currentPlayer.character)) &&
-                buttons[1][1].getText().equals(String.valueOf(currentPlayer.character)) &&
-                buttons[2][0].getText().equals(String.valueOf(currentPlayer.character))) {
-            return true;
-        }
-
-        return false;
-    }
 
     private boolean isBoardFull() {
         for (int row = 0; row < 3; row++) {
