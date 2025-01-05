@@ -3,11 +3,25 @@ package TicTacToe;
 import java.sql.*;
 
 public class DatabaseConnection {
-    private static final String URL = "jdbc:mysql://localhost:3306/tictactoe";
+    private static String URL = "jdbc:mysql://localhost:3306/tictactoe";
     private static final String USER = "root";
     private static final String PASSWORD = "";
 
+    private void createDB() {
+        String createDatabaseSQL = "CREATE DATABASE IF NOT EXISTS tictactoe;";
+        String URL = "jdbc:mysql://localhost:3306";
+        try (Connection connection = DriverManager.getConnection(URL, USER, PASSWORD);
+             Statement statement = connection.createStatement()) {
+
+            // Execute the SQL query
+            statement.executeUpdate(createDatabaseSQL);
+            System.out.println("Database 'tictactoe' created successfully.");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
     public void dbconnect() {
+        createDB();
         String createTableSQL = """
             CREATE TABLE IF NOT EXISTS users (
                 userId INT AUTO_INCREMENT PRIMARY KEY,
@@ -23,7 +37,6 @@ public class DatabaseConnection {
         try (Connection connection = DriverManager.getConnection(URL, USER, PASSWORD);
              Statement statement = connection.createStatement()) {
 
-            // Execute the SQL query
             statement.executeUpdate(createTableSQL);
             System.out.println("Table 'users' created successfully.");
         } catch (Exception e) {

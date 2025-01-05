@@ -1,21 +1,28 @@
 package TicTacToe;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
-public class Bot extends Player {
 
+
+public class Bot extends Player {
     Random rand = new Random();
-    private int[] selectSpot() {
-        int x = Math.abs(rand.nextInt(3));
-        int y = Math.abs(rand.nextInt(3));
-        int[] res = {x,y};
-        return res;
-    }
-    public int[] move(Board board) {
-        int res[] = selectSpot();
-        while(!board.checkBoard(res[0]+1,res[1]+1)) {
-            res = selectSpot();
+
+    // Pick a random move from the available spots
+    private int[] selectSpot(Board board) {
+        List<int[]> availableMoves = new ArrayList<>();
+        for (int i = 0; i < 3; i++) {
+            for (int j = 0; j < 3; j++) {
+                if (board.checkBoard(i + 1, j + 1)) {
+                    availableMoves.add(new int[] {i, j});
+                }
+            }
         }
-        return res;
+        return availableMoves.get(rand.nextInt(availableMoves.size()));
+    }
+
+    public int[] move(Board board) {
+        return selectSpot(board);  // Move to an available spot
     }
 
     public Bot(char character) {

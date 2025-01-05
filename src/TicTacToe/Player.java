@@ -8,11 +8,17 @@ public class Player {
         return name;
     }
 
+    public char getCharacter() {
+        return character;
+    }
+
     public Player () {}
     public Player(String name, char character) {
         this.name = name;
-        if(character=='X'||character=='O') {
+        if(character == 'X' || character == 'O') {
             this.character = character;
+        } else {
+            throw new IllegalArgumentException("Character must be 'X' or 'O'");
         }
     }
 
