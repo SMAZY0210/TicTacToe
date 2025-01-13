@@ -5,7 +5,7 @@ import java.net.*;
 
 public class GameClient {
     private static final String SERVER_ADDRESS = "localhost";  // Change this to the server's IP address
-    private static final int SERVER_PORT = 8080;
+    private static final int SERVER_PORT = 12345;
 
     private static Socket socket;
     private static PrintWriter out;
